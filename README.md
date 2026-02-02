@@ -136,6 +136,7 @@ This is how large-scale systems are designed.
 
 ## Project Folder Structure
 
+```text
 src/
 ├── database/
 │   └── entities/
@@ -146,6 +147,7 @@ src/
 │       └── post.service.ts
 ├── app.module.ts
 └── main.ts
+
 
 ---
 
