@@ -154,7 +154,7 @@ src/
 ## Setup Instructions
 
 ### Clone Repository
-git clone <repository-url>
+git clone <https://github.com/Deeksha1108/RabbitMQ_PostService.git>
 cd post-service
 npm install
 
