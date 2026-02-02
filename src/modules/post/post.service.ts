@@ -12,7 +12,7 @@ export class PostService implements OnModuleInit {
 
     // DIRECT
     @Inject('RABBITMQ_DIRECT')
-    private directClient: ClientProxy,
+    private rabbitClient: ClientProxy,
 
     // FANOUT
     @Inject('RABBITMQ_FANOUT')
@@ -20,7 +20,7 @@ export class PostService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    await this.directClient.connect();
+    await this.rabbitClient.connect();
     await this.fanoutClient.connect();
   }
 
@@ -34,10 +34,12 @@ export class PostService implements OnModuleInit {
     };
 
     // DIRECT (one consumer)
-    this.directClient.emit('post.created', payload);
+    // this.rabbitClient.emit('post.created', payload);
+    // console.log('[DIRECT] Message sent to RabbitMQ:', payload);
 
     // FANOUT (pub-sub)
-    // this.fanoutClient.emit('post.created', payload);
+    this.fanoutClient.emit('post.created', payload);
+    console.log('[FANOUT] Message sent to RabbitMQ:', payload);
 
     return post;
   }

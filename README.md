@@ -1,98 +1,247 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Post Service – RabbitMQ Producer (Direct + Fanout)
+## Event-Driven Microservices using NestJS + PostgreSQL
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This Post Service acts as the **producer service** in a RabbitMQ-based microservices architecture.
+It is responsible for publishing events when a post is created, without directly calling any other service.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+This project demonstrates how **real-world backend systems** use message brokers to decouple services
+and achieve scalability, reliability, and fault tolerance.
 
-## Description
+The goal of this service is to show **how real production systems decouple services**
+using message queues instead of tight API-to-API communication.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+---
 
-## Project setup
+## What is RabbitMQ (Easy Explanation)
 
-```bash
-$ npm install
-```
+RabbitMQ is a **message broker** that sits between services.
 
-## Compile and run the project
+Instead of one service directly calling another service,
+messages flow through RabbitMQ like this:
 
-```bash
-# development
-$ npm run start
+Producer → Exchange → Queue → Consumer
 
-# watch mode
-$ npm run start:dev
+This approach ensures:
+- Loose coupling between services
+- Asynchronous communication
+- Better scalability
+- No dependency on consumer availability
 
-# production mode
-$ npm run start:prod
-```
+---
 
-## Run tests
+## RabbitMQ Exchange Types (Concept)
 
-```bash
-# unit tests
-$ npm run test
+RabbitMQ supports **4 types of exchanges**:
 
-# e2e tests
-$ npm run test:e2e
+1. Direct Exchange  
+2. Fanout Exchange  
+3. Topic Exchange  
+4. Headers Exchange  
 
-# test coverage
-$ npm run test:cov
-```
+In this project, I have implemented **2 exchange types**:
 
-## Deployment
+- Direct Exchange
+- Fanout Exchange
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+These two are the most commonly used patterns in real production systems.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+---
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+## Why Direct and Fanout Only?
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Direct and Fanout exchanges cover most backend use cases:
 
-## Resources
+- **Direct Exchange**
+  - One message → one queue → one consumer
+  - Used for task-based or command-based processing
 
-Check out a few resources that may come in handy when working with NestJS:
+- **Fanout Exchange**
+  - One message → multiple queues → multiple consumers
+  - Used for event broadcasting (publish-subscribe)
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Topic and Headers exchanges are intentionally skipped
+to keep the architecture simple and focused.
 
-## Support
+---
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Messaging Patterns Implemented
 
-## Stay in touch
+### 1. Direct Exchange (Point-to-Point)
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Used when **only one service** should process a message.
 
-## License
+Flow:
+Post Service → Direct Exchange → Single Queue → Single Consumer
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Use cases:
+- Order processing
+- Background jobs
+- Inventory updates
+- Payment handling
+
+In this project:
+- Post Service emits a message
+- Only one bound consumer receives it
+
+---
+
+### 2. Fanout Exchange (Publish-Subscribe)
+
+Used when **multiple services** need to react to the same event.
+
+Flow:
+Post Service → Fanout Exchange → Multiple Queues → Multiple Consumers
+
+Each service gets its **own copy** of the message.
+
+Use cases:
+- Send email
+- Send notification
+- Update analytics
+- Audit logging
+
+---
+
+## Real-World Flow Implemented
+
+When a post is created:
+
+1. Post is saved in PostgreSQL
+2. An event is published to RabbitMQ
+3. Other services react independently
+
+Post Service does NOT care:
+- Which service consumes the message
+- How many services consume it
+- Whether a consumer is currently down
+
+This is how large-scale systems are designed.
+
+---
+
+## Tech Stack Used
+
+- NestJS
+- RabbitMQ
+- @nestjs/microservices
+- PostgreSQL
+- TypeORM
+- amqplib
+- amqp-connection-manager
+- Docker (RabbitMQ)
+- RabbitMQ Management UI
+- Postman
+
+---
+
+## Project Folder Structure
+
+src/
+├── database/
+│   └── entities/
+│       └── post.entity.ts
+├── modules/
+│   └── post/
+│       ├── post.controller.ts
+│       └── post.service.ts
+├── app.module.ts
+└── main.ts
+
+---
+
+## Setup Instructions
+
+### Clone Repository
+git clone <repository-url>
+cd post-service
+npm install
+
+---
+
+### Start RabbitMQ using Docker
+docker run -d \
+--hostname rabbitmq \
+--name rabbitmq \
+-p 5672:5672 \
+-p 15672:15672 \
+rabbitmq:3-management
+
+RabbitMQ Dashboard:
+http://localhost:15672  
+Username: guest  
+Password: guest  
+
+---
+
+### Start Post Service
+npm run start:dev
+
+---
+
+## API Endpoint
+
+POST /posts
+
+Request Body:
+{
+  "content": "Hello RabbitMQ"
+}
+
+---
+
+## Internal Working (Step-by-Step)
+
+1. Post is saved in PostgreSQL using TypeORM
+2. Post Service publishes an event to RabbitMQ
+3. Exchange routes the message:
+   - Direct → single queue
+   - Fanout → multiple queues
+4. Consumer services process the message independently
+
+---
+
+## RabbitMQ Management UI Verification
+
+Open:
+http://localhost:15672
+
+Check:
+- Exchanges → Direct / Fanout exchanges
+- Queues → Consumer-specific queues
+- Bindings → Exchange-to-queue mapping
+- Message rates → publish / deliver metrics
+
+Note:
+If consumers are running with acknowledgements enabled,
+messages may not stay visible in queues — this is expected behavior.
+
+---
+
+## Production-Level Concepts Applied
+
+- Event-driven architecture
+- Loose coupling
+- Asynchronous messaging
+- Fault tolerance
+- Horizontal scalability
+- Clean separation of concerns
+- No direct service-to-service dependency
+
+---
+
+## What I Learned from This Project
+
+- How RabbitMQ works internally
+- Difference between Direct and Fanout exchanges
+- How publish-subscribe systems work
+- How NestJS integrates RabbitMQ
+- How real backend systems avoid tight coupling
+- How to debug message flow using RabbitMQ UI
+
+---
+
+## Made By Deeksha
+
+This Post Service demonstrates real-world RabbitMQ integration
+using NestJS with both Direct and Fanout messaging patterns.
+It acts as a clean producer service in an event-driven architecture.
